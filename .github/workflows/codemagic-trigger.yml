@@ -1,0 +1,72 @@
+name: Trigger Codemagic Android build
+
+on:
+  push:
+    branches:
+      - setup/initial-flutter-project
+    - main
+    paths:
+      - '**.dart'
+      - 'pubspec.yaml'
+      - 'pubspec.lock'
+      - 'android/**'
+      - 'codemagic.yaml'
+      - '.github/workflows/codemagic-trigger.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: codemagic-android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  trigger-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Validate required secrets
+        env:
+          CM_TOKEN: ${{ secrets.CODEMAGIC_API_TOKEN }}
+          CM_APP_ID: ${{ secrets.CODEMAGIC_APP_ID }}
+        run: |
+          test -n "$CM_TOKEN" || { echo "Missing CODEMAGIC_API_TOKEN secret"; exit 1; }
+          test -n "$CM_APP_ID" || { echo "Missing CODEMAGIC_APP_ID secret"; exit 1; }
+
+      - name: Trigger Codemagic build
+        id: trigger
+        env:
+          CM_TOKEN: ${{ secrets.CODEMAGIC_API_TOKEN }}
+          CM_APP_ID: ${{ secrets.CODEMAGIC_APP_ID }}
+          CM_WORKFLOW_ID: android-release
+          CM_BRANCH: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          response=$(curl --fail-with-body --silent --show-error \
+            -H "Content-Type: application/json" \
+            -H "x-auth-token: ${CM_TOKEN}" \
+            -X POST https://api.codemagic.io/builds \
+            -d "$(jq -n --arg appId "$CM_APP_ID" --arg workflowId "$CM_WORKFLOW_ID" --arg branch "$CM_BRANCH" '{appId:$appId,workflowId:$workflowId,branch:$branch}')")
+          build_id=$(echo "$response" | jq -r '.buildId // empty')
+          if [ -z "$build_id" ]; then
+            echo "Codemagic response did not include buildId:"
+            echo "$response"
+            exit 1
+          fi
+          echo "build_id=$build_id" >> "$GITHUB_OUTPUT"
+          echo "build_url=https://codemagic.io/app/$CM_APP_ID/build/$build_id" >> "$GITHUB_OUTPUT"
+
+      - name: Publish build link in summary
+        env:
+          BUILD_ID: ${{ steps.trigger.outputs.build_id }}
+          BUILD_URL: ${{ steps.trigger.outputs.build_url }}
+        run: |
+          {
+            echo "## Codemagic build triggered"
+            echo ""
+            echo "- Build ID: `$BUILD_ID`"
+            echo "- [Open build in Codemagic]($BUILD_URL)"
+            echo ""
+            echo "This job starts the remote build. Codemagic reports the final build result and logs."
+          } >> "$GITHUB_STEP_SUMMARY"
