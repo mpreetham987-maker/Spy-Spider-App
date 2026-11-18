@@ -4,15 +4,22 @@ on:
   push:
     branches:
       - setup/initial-flutter-project
-    - main
     paths:
       - '**.dart'
       - 'pubspec.yaml'
       - 'pubspec.lock'
       - 'android/**'
       - 'codemagic.yaml'
-      - '.github/workflows/codemagic-trigger.yml'
   workflow_dispatch:
+    inputs:
+      build_branch:
+        description: Branch to build in Codemagic
+        required: true
+        default: setup/initial-flutter-project
+        type: choice
+        options:
+          - setup/initial-flutter-project
+          - main
 
 permissions:
   contents: read
@@ -40,7 +47,7 @@ jobs:
           CM_TOKEN: ${{ secrets.CODEMAGIC_API_TOKEN }}
           CM_APP_ID: ${{ secrets.CODEMAGIC_APP_ID }}
           CM_WORKFLOW_ID: android-release
-          CM_BRANCH: ${{ github.ref_name }}
+          CM_BRANCH: ${{ github.event.inputs.build_branch || github.ref_name }}
         run: |
           set -euo pipefail
           response=$(curl --fail-with-body --silent --show-error \
@@ -68,5 +75,5 @@ jobs:
             echo "- Build ID: `$BUILD_ID`"
             echo "- [Open build in Codemagic]($BUILD_URL)"
             echo ""
-            echo "This job starts the remote build. Codemagic reports the final build result and logs."
+            echo "Codemagic reports final build status and logs."
           } >> "$GITHUB_STEP_SUMMARY"
