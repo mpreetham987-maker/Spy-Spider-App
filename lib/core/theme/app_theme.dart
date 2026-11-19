@@ -15,56 +15,43 @@ import '../constants/app_constants.dart';
 class AppTheme {
   AppTheme._();
 
+  // Build the Flutter TextTheme directly. Using GoogleFonts.*TextTheme here
+  // crosses TextTheme types in the resolved material_ui/google_fonts stack.
+  // Applying GoogleFonts to individual Flutter TextStyles avoids that clash.
   static TextTheme _textTheme(TextTheme base, Color primaryText) {
-    final outfit = GoogleFonts.outfitTextTheme(base);
-    final inter = GoogleFonts.interTextTheme(base);
+    TextStyle? outfit(TextStyle? style, {
+      FontWeight weight = FontWeight.w600,
+      double? letterSpacing,
+    }) =>
+        GoogleFonts.outfit(
+          textStyle: style?.copyWith(
+            fontWeight: weight,
+            letterSpacing: letterSpacing,
+            color: primaryText,
+          ),
+        );
 
-    return inter.copyWith(
-      displayLarge: outfit.displayLarge?.copyWith(
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.5,
-        color: primaryText,
-      ),
-      displayMedium: outfit.displayMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.5,
-        color: primaryText,
-      ),
-      displaySmall: outfit.displaySmall
-          ?.copyWith(fontWeight: FontWeight.w600, color: primaryText),
-      headlineLarge:
-          outfit.headlineLarge?.copyWith(fontWeight: FontWeight.w600, color: primaryText),
-      headlineMedium:
-          outfit.headlineMedium?.copyWith(fontWeight: FontWeight.w600, color: primaryText),
-      headlineSmall:
-          outfit.headlineSmall?.copyWith(fontWeight: FontWeight.w600, color: primaryText),
-      titleLarge: outfit.titleLarge?.copyWith(
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.1,
-        color: primaryText,
-      ),
-      titleMedium:
-          outfit.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: primaryText),
-      titleSmall:
-          outfit.titleSmall?.copyWith(fontWeight: FontWeight.w500, color: primaryText),
-      bodyLarge: inter.bodyLarge?.copyWith(height: 1.4, color: primaryText),
-      bodyMedium: inter.bodyMedium?.copyWith(height: 1.4, color: primaryText),
-      bodySmall: inter.bodySmall?.copyWith(height: 1.3, color: primaryText),
-      labelLarge: outfit.labelLarge?.copyWith(
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.4,
-        color: primaryText,
-      ),
-      labelMedium: outfit.labelMedium?.copyWith(
-        fontWeight: FontWeight.w600,
-        letterSpacing: 0.6,
-        color: primaryText,
-      ),
-      labelSmall: outfit.labelSmall?.copyWith(
-        fontWeight: FontWeight.w500,
-        letterSpacing: 0.8,
-        color: primaryText,
-      ),
+    TextStyle? inter(TextStyle? style, {double? height}) =>
+        GoogleFonts.inter(
+          textStyle: style?.copyWith(height: height, color: primaryText),
+        );
+
+    return base.copyWith(
+      displayLarge: outfit(base.displayLarge, letterSpacing: -0.5),
+      displayMedium: outfit(base.displayMedium, letterSpacing: -0.5),
+      displaySmall: outfit(base.displaySmall),
+      headlineLarge: outfit(base.headlineLarge),
+      headlineMedium: outfit(base.headlineMedium),
+      headlineSmall: outfit(base.headlineSmall),
+      titleLarge: outfit(base.titleLarge, letterSpacing: 0.1),
+      titleMedium: outfit(base.titleMedium),
+      titleSmall: outfit(base.titleSmall, weight: FontWeight.w500),
+      bodyLarge: inter(base.bodyLarge, height: 1.4),
+      bodyMedium: inter(base.bodyMedium, height: 1.4),
+      bodySmall: inter(base.bodySmall, height: 1.3),
+      labelLarge: outfit(base.labelLarge, letterSpacing: 0.4),
+      labelMedium: outfit(base.labelMedium, letterSpacing: 0.6),
+      labelSmall: outfit(base.labelSmall, weight: FontWeight.w500, letterSpacing: 0.8),
     );
   }
 
