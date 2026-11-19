@@ -72,7 +72,7 @@ jobs:
           {
             echo "## Codemagic build triggered"
             echo ""
-            echo "- Build ID: `$BUILD_ID`"
+            echo "- Build ID: $BUILD_ID"
             echo "- [Open build in Codemagic]($BUILD_URL)"
             echo ""
             echo "Codemagic reports final build status and logs."
