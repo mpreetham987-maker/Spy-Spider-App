@@ -81,7 +81,7 @@ class RobotBluetoothService {
       _setState(BtConnectionState.error);
     } finally {
       try {
-        if (await FlutterBluePlus.isScanning) {
+        if (FlutterBluePlus.isScanningNow) {
           await FlutterBluePlus.stopScan();
         }
       } catch (_) {
