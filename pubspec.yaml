@@ -4,40 +4,40 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.3.0 <4.0.0'
+  sdk: '>=3.13.0 <4.0.0'
 
 dependencies:
   flutter:
     sdk: flutter
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^2.0.0
 
   # State management
-  provider: ^6.1.2
+  provider: ^6.1.5+1
 
   # Typography & animation
-  google_fonts: ^6.2.1
-  flutter_animate: ^4.5.0
+  google_fonts: ^9.0.0
+  flutter_animate: ^4.5.2
 
-  # Cross-platform Bluetooth Low Energy (Android + iOS)
+  # Bluetooth Low Energy
+  # Kept on the existing line until licensing and 2.x migration are reviewed.
   flutter_blue_plus: ^1.35.5
 
   # Networking / ESP32-CAM MJPEG stream
-  http: ^1.2.1
+  http: ^1.6.0
 
   # UI utilities
-  smooth_page_indicator: ^1.1.0
+  smooth_page_indicator: ^3.0.0
 
   # Persistence
-  shared_preferences: ^2.2.3
+  shared_preferences: ^2.5.6
 
-  # On-device AI object detection, run on real decoded ESP32-CAM
-  # frames (never a simulated/fake overlay).
-  google_mlkit_object_detection: ^0.13.0
+  # On-device AI object detection
+  google_mlkit_object_detection: ^1.0.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
